@@ -7,7 +7,7 @@ namespace monAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CharactersController: ControllerBase
+    public class CharactersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         public CharactersController(ApplicationDbContext dbContext)
@@ -29,23 +29,26 @@ namespace monAPI.Controllers
         public async Task<ActionResult<List<Characters>>> GetName(string characterName)
         {
             Characters selectedCharacter = _context.characters.Where(x => x.Name == characterName).FirstOrDefault();
-            if (selectedCharacter != null)
-            {
-                return Ok(selectedCharacter);
-            }
             return Ok(selectedCharacter);
         }
 
         //Add Characters
         [HttpPost]
         [Route("AddCharacters")]
-        public async Task<ActionResult<List<Characters>>> Post(string name, string description, string regionName, string visionType, string weaponName )
+        public async Task<ActionResult<List<Characters>>> Post(string name, string description, string regionName, string visionType, string weaponName)
         {
+            //Verify if the name is already in the database
+            var Name = _context.characters.Where(c => c.Name == name).FirstOrDefault();
+            if (Name != null)
+            {
+                return BadRequest("The name is already taken");
+            }
+
             var Region = _context.region.Where(x => x.RegionName == regionName).FirstOrDefault();
             var Vision = _context.vision.Where(x => x.VisionType == visionType).FirstOrDefault();
             var Weapon = _context.weapon.Where(x => x.WeaponName == weaponName).FirstOrDefault();
 
-            _context.characters.Add(new Characters()
+            _context.characters.Add( new Characters()
             {
                 Name = name,
                 Description = description,
@@ -53,11 +56,12 @@ namespace monAPI.Controllers
                 vision = Vision,
                 weapon = Weapon
             });
-            _context.SaveChanges();
-            return Ok(await _context.characters.ToListAsync());
-            
-        }
 
+            //Show the created character
+            var createdCharacter = _context.characters.Where(x => x.Name == name);
+            _context.SaveChanges();
+            return Ok(createdCharacter);
+        }
 
         //Update characters
         [HttpPut]
@@ -76,7 +80,7 @@ namespace monAPI.Controllers
             Characters deleteCharacter = _context.characters.Where(x => x.Name == name).FirstOrDefault();
             _context.characters.Remove(deleteCharacter);
             _context.SaveChanges();
-            return Ok(await _context.characters.ToListAsync());
+            return Ok("Character deleted");
         }
     }
 }
