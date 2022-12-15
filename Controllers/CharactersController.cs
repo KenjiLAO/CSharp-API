@@ -20,6 +20,7 @@ namespace monAPI.Controllers
         [Route("GetCharacters")]
         public async Task<ActionResult<List<Characters>>> Get()
         {
+
             return Ok(_context.characters);
         }
 
@@ -48,6 +49,18 @@ namespace monAPI.Controllers
             var Vision = _context.vision.Where(x => x.VisionType == visionType).FirstOrDefault();
             var Weapon = _context.weapon.Where(x => x.WeaponName == weaponName).FirstOrDefault();
 
+            if (Region == null)
+            {
+                return BadRequest("No region added");
+            }
+            if (Vision == null)
+            {
+                return BadRequest("No vision added");
+            }
+            if (Weapon == null)
+            {
+                return BadRequest("No weapon added");
+            }
             _context.characters.Add( new Characters()
             {
                 Name = name,
@@ -64,12 +77,18 @@ namespace monAPI.Controllers
         }
 
         //Update characters
-        [HttpPut]
-        [Route("UpdateCharacters")]
-        public async Task<ActionResult<List<Characters>>> Update(string Name, string Description)
+        [HttpPatch]
+        [Route("ModifyCharacters")]
+        public async Task<ActionResult<List<Characters>>> Modify(string name, string newName, string newDescription)
         {
+            //Modify a character by his name and description
+            var character = _context.characters.FirstOrDefault(x => x.Name == name);
+
+            character.Name = newName;
+            character.Description = newDescription;
             _context.SaveChanges();
-            return Ok(await _context.characters.ToListAsync());
+            return Ok(character);
+            
         }
 
         //Delete characters

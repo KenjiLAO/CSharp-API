@@ -27,24 +27,34 @@ public class WeaponController : ControllerBase
     [Route("AddWeapon")]
     public async Task<ActionResult<List<Weapon>>> Post(string name)
     {
+        //Verify if the name is already in the database
+        var Name = _context.weapon.Where(c => c.WeaponName == name).FirstOrDefault();
+        if (Name != null)
+        {
+            return BadRequest("The name is already taken");
+        }
         _context.weapon.Add(new Weapon()
         {
             WeaponName = name
         });
+        //Show the created weapon
+        var createdWeapon = _context.characters.Where(x => x.Name == name);
         _context.SaveChanges();
-        return Ok(await _context.weapon.ToListAsync());
-
+        return Ok(createdWeapon);
     }
 
 
     //Update weapon
-    [HttpPut]
-    [Route("UpdateWeapon")]
-    public async Task<ActionResult<List<Weapon>>> Update(string Name)
+    [HttpPatch]
+    [Route("ModifyWeapon")]
+    public async Task<ActionResult<List<Weapon>>> Update(string Name, string newName)
     {
+        //Modify a weapon by his name
+        var weapon = _context.weapon.FirstOrDefault(x => x.WeaponName == Name);
 
+        weapon.WeaponName = newName;
         _context.SaveChanges();
-        return Ok(await _context.weapon.ToListAsync());
+        return Ok(weapon);
     }
 
     //Delete weapon
@@ -55,6 +65,6 @@ public class WeaponController : ControllerBase
         Weapon deleteWeapon = _context.weapon.Where(x => x.WeaponName == name).FirstOrDefault();
         _context.weapon.Remove(deleteWeapon);
         _context.SaveChanges();
-        return Ok(await _context.weapon.ToListAsync());
+        return Ok("Vision deleted");
     }
 }

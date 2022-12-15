@@ -40,22 +40,34 @@ namespace monAPI.Entities
         [Route("AddVision")]
         public async Task<ActionResult<List<Vision>>> Post(string name)
         {
+            //Verify if the name is already in the database
+            var Name = _context.vision.Where(c => c.VisionType == name).FirstOrDefault();
+            if (Name != null)
+            {
+                return BadRequest("The name is already taken");
+            }
             _context.vision.Add(new Vision()
             {
                 VisionType = name
             });
+            //Show the created vision
+            var createdVision = _context.characters.Where(x => x.Name == name);
             _context.SaveChanges();
-            return Ok(await _context.vision.ToListAsync());
+            return Ok(createdVision);
 
         }
 
         //Update Vision
-        [HttpPut]
-        [Route("UpdateVision")]
-        public async Task<ActionResult<List<Vision>>> Update(string Name)
+        [HttpPatch]
+        [Route("ModifyVision")]
+        public async Task<ActionResult<List<Vision>>> Update(string Name, string newName)
         {
+            //Modify a vision by his name
+            var vision = _context.vision.FirstOrDefault(x => x.VisionType == Name);
+
+            vision.VisionType = newName;
             _context.SaveChanges();
-            return Ok(await _context.vision.ToListAsync());
+            return Ok(vision);
         }
 
         //Delete Vision
@@ -66,7 +78,7 @@ namespace monAPI.Entities
             Vision deleteCharacter = _context.vision.Where(x => x.VisionType == name).FirstOrDefault();
             _context.vision.Remove(deleteCharacter);
             _context.SaveChanges();
-            return Ok(await _context.vision.ToListAsync());
+            return Ok("Vision deleted");
         }
     }
 }

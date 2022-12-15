@@ -29,21 +29,34 @@ namespace monAPI.Controllers
         [Route("AddRegion")]
         public async Task<ActionResult<List<Region>>> Post(string name, string description)
         {
+            //Verify if the name is already in the database
+            var Name = _context.region.Where(c => c.RegionName == name).FirstOrDefault();
+            if (Name != null)
+            {
+                return BadRequest("The name is already taken");
+            }
             _context.region.Add(new Region()
             {
                 RegionName = name,
                 RegionDescription = description
             });
+            //Show the created region
+            var createdRegion = _context.characters.Where(x => x.Name == name);
             _context.SaveChanges();
-            return Ok(await _context.region.ToListAsync());
+            return Ok(createdRegion);
         }
         //Update Region
-        [HttpPut]
-        [Route("UpdateRegion")]
-        public async Task<ActionResult<List<Region>>> Update(string Name, string Description)
+        [HttpPatch]
+        [Route("ModifyRegion")]
+        public async Task<ActionResult<List<Region>>> Update(string Name, string newName, string newDescription)
         {
+            //Modify a region by his name and description
+            var region = _context.region.FirstOrDefault(x => x.RegionName == Name);
+
+            region.RegionName = newName;
+            region.RegionDescription = newDescription;
             _context.SaveChanges();
-            return Ok(await _context.region.ToListAsync());
+            return Ok(region);
         }
 
         //Delete Region
@@ -54,7 +67,7 @@ namespace monAPI.Controllers
             Region deleteRegion = _context.region.Where(x => x.RegionName == name).FirstOrDefault();
             _context.region.Remove(deleteRegion);
             _context.SaveChanges();
-            return Ok(await _context.region.ToListAsync());
+            return Ok("Region deleted");
         }
 
     }
