@@ -20,8 +20,12 @@ namespace monAPI.Controllers
         [Route("GetCharacters")]
         public async Task<ActionResult<List<Characters>>> Get()
         {
-
-            return Ok(_context.characters);
+            //Show all the objet to not get a null value
+            List<Characters> characters = new List<Characters>();
+            characters = _context.characters.Include(a => a.region).ToList();
+            characters = _context.characters.Include(a => a.vision).ToList();
+            characters = _context.characters.Include(a => a.weapon).ToList();
+            return Ok(characters);
         }
 
         //Get characters by name
@@ -29,7 +33,11 @@ namespace monAPI.Controllers
         [Route("GetCharactersByName")]
         public async Task<ActionResult<List<Characters>>> GetName(string characterName)
         {
+            //Show the selected character by his name
             Characters selectedCharacter = _context.characters.Where(x => x.Name == characterName).FirstOrDefault();
+            selectedCharacter = _context.characters.Include(x => x.region).FirstOrDefault();
+            selectedCharacter = _context.characters.Include(x => x.vision).FirstOrDefault();
+            selectedCharacter = _context.characters.Include(x => x.weapon).FirstOrDefault();
             return Ok(selectedCharacter);
         }
 
@@ -39,7 +47,7 @@ namespace monAPI.Controllers
         public async Task<ActionResult<List<Characters>>> Post(string name, string description, string regionName, string visionType, string weaponName)
         {
             //Verify if the name is already in the database
-            var Name = _context.characters.Where(c => c.Name == name).FirstOrDefault();
+            var Name = _context.characters.Where(x => x.Name == name).FirstOrDefault();
             if (Name != null)
             {
                 return BadRequest("The name is already taken");
@@ -49,6 +57,7 @@ namespace monAPI.Controllers
             var Vision = _context.vision.Where(x => x.VisionType == visionType).FirstOrDefault();
             var Weapon = _context.weapon.Where(x => x.WeaponName == weaponName).FirstOrDefault();
 
+            //Verify if the region exist
             if (Region == null)
             {
                 return BadRequest("No region added");
@@ -61,6 +70,8 @@ namespace monAPI.Controllers
             {
                 return BadRequest("No weapon added");
             }
+
+            //Add the character with his information
             _context.characters.Add( new Characters()
             {
                 Name = name,
@@ -83,7 +94,6 @@ namespace monAPI.Controllers
         {
             //Modify a character by his name and description
             var character = _context.characters.FirstOrDefault(x => x.Name == name);
-
             character.Name = newName;
             character.Description = newDescription;
             _context.SaveChanges();
@@ -96,6 +106,7 @@ namespace monAPI.Controllers
         [Route("DeleteCharacters")]
         public async Task<ActionResult<List<Characters>>> Delete(string name)
         {
+            //Delete character by his name
             Characters deleteCharacter = _context.characters.Where(x => x.Name == name).FirstOrDefault();
             _context.characters.Remove(deleteCharacter);
             _context.SaveChanges();

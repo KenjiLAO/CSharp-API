@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using monAPI.Context;
 
 namespace monAPI.Entities
@@ -28,10 +27,6 @@ namespace monAPI.Entities
         public async Task<ActionResult<List<Vision>>> GetVisionType(string visionType)
         {
             Vision selectedVision = _context.vision.Where(x => x.VisionType == visionType).FirstOrDefault();
-            if (selectedVision != null)
-            {
-                return Ok(selectedVision);
-            }
             return Ok(selectedVision);
         }
 
@@ -41,7 +36,7 @@ namespace monAPI.Entities
         public async Task<ActionResult<List<Vision>>> Post(string name)
         {
             //Verify if the name is already in the database
-            var Name = _context.vision.Where(c => c.VisionType == name).FirstOrDefault();
+            var Name = _context.vision.Where(x => x.VisionType == name).FirstOrDefault();
             if (Name != null)
             {
                 return BadRequest("The name is already taken");
@@ -54,7 +49,6 @@ namespace monAPI.Entities
             var createdVision = _context.characters.Where(x => x.Name == name);
             _context.SaveChanges();
             return Ok(createdVision);
-
         }
 
         //Update Vision
@@ -64,7 +58,6 @@ namespace monAPI.Entities
         {
             //Modify a vision by his name
             var vision = _context.vision.FirstOrDefault(x => x.VisionType == Name);
-
             vision.VisionType = newName;
             _context.SaveChanges();
             return Ok(vision);
@@ -75,6 +68,7 @@ namespace monAPI.Entities
         [Route("DeleteVision")]
         public async Task<ActionResult<List<Vision>>> Delete(string name)
         {
+            //Delete vision by his name
             Vision deleteCharacter = _context.vision.Where(x => x.VisionType == name).FirstOrDefault();
             _context.vision.Remove(deleteCharacter);
             _context.SaveChanges();

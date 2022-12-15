@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using monAPI.Context;
 using monAPI.Entities;
 
@@ -30,7 +29,7 @@ namespace monAPI.Controllers
         public async Task<ActionResult<List<Region>>> Post(string name, string description)
         {
             //Verify if the name is already in the database
-            var Name = _context.region.Where(c => c.RegionName == name).FirstOrDefault();
+            var Name = _context.region.Where(x => x.RegionName == name).FirstOrDefault();
             if (Name != null)
             {
                 return BadRequest("The name is already taken");
@@ -45,6 +44,7 @@ namespace monAPI.Controllers
             _context.SaveChanges();
             return Ok(createdRegion);
         }
+
         //Update Region
         [HttpPatch]
         [Route("ModifyRegion")]
@@ -64,6 +64,7 @@ namespace monAPI.Controllers
         [Route("DeleteRegion")]
         public async Task<ActionResult<List<Region>>> Delete(string name)
         {
+            //delete a region by his name
             Region deleteRegion = _context.region.Where(x => x.RegionName == name).FirstOrDefault();
             _context.region.Remove(deleteRegion);
             _context.SaveChanges();

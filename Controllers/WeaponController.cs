@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using monAPI.Context;
 
 namespace monAPI.Controllers;
@@ -28,7 +27,7 @@ public class WeaponController : ControllerBase
     public async Task<ActionResult<List<Weapon>>> Post(string name)
     {
         //Verify if the name is already in the database
-        var Name = _context.weapon.Where(c => c.WeaponName == name).FirstOrDefault();
+        var Name = _context.weapon.Where(x => x.WeaponName == name).FirstOrDefault();
         if (Name != null)
         {
             return BadRequest("The name is already taken");
@@ -62,6 +61,7 @@ public class WeaponController : ControllerBase
     [Route("DeleteWeapon")]
     public async Task<ActionResult<List<Weapon>>> Delete(string name)
     {
+        //delete a weapon by his name
         Weapon deleteWeapon = _context.weapon.Where(x => x.WeaponName == name).FirstOrDefault();
         _context.weapon.Remove(deleteWeapon);
         _context.SaveChanges();
