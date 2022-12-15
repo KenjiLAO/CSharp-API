@@ -1,76 +1,72 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using monAPI.Context;
 
-namespace monAPI.Entities;
-[ApiController]
-[Route("[controller]")]
-public class VisionController : ControllerBase
+namespace monAPI.Entities
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CharactersController : ControllerBase
+    public class VisionController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        public CharactersController(ApplicationDbContext dbContext)
+        public VisionController(ApplicationDbContext dbContext)
         {
             _context = dbContext;
         }
 
-        //Get Characters
+        //Get Vision
         [HttpGet]
-        [Route("GetCharacters")]
-        public async Task<ActionResult<List<Characters>>> Get()
+        [Route("GetVision")]
+        public async Task<ActionResult<List<Vision>>> Get()
         {
-            return Ok(_context.characters);
+            return Ok(_context.vision);
         }
 
-        //Get characters by name
+        //Get Vision by type
         [HttpGet]
-        [Route("GetCharactersByName")]
-        public async Task<ActionResult<List<Characters>>> GetName(string characterName)
+        [Route("GetVisionByType")]
+        public async Task<ActionResult<List<Vision>>> GetVisionType(string visionType)
         {
-            Characters selectedCharacter = _context.characters.Where(x => x.Name == characterName).FirstOrDefault();
-            if (selectedCharacter != null)
+            Vision selectedVision = _context.vision.Where(x => x.VisionType == visionType).FirstOrDefault();
+            if (selectedVision != null)
             {
-                return Ok(selectedCharacter);
+                return Ok(selectedVision);
             }
-            return Ok(selectedCharacter);
+            return Ok(selectedVision);
         }
 
-        //Add Characters
+        //Add Vision
         [HttpPost]
-        [Route("AddCharacters")]
-        public async Task<ActionResult<List<Characters>>> Post(string name, string description)
+        [Route("AddVision")]
+        public async Task<ActionResult<List<Vision>>> Post(string name)
         {
-            _context.characters.Add(new Characters()
+            _context.vision.Add(new Vision()
             {
-                Name = name,
-                Description = description
+                VisionType = name
             });
             _context.SaveChanges();
-            return Ok(await _context.characters.ToListAsync());
+            return Ok(await _context.vision.ToListAsync());
 
         }
 
-
-        //Update characters
+        //Update Vision
         [HttpPut]
-        [Route("UpdateCharacters")]
-        public async Task<ActionResult<List<Characters>>> Update(string Name, string Description)
+        [Route("UpdateVision")]
+        public async Task<ActionResult<List<Vision>>> Update(string Name)
         {
             _context.SaveChanges();
-            return Ok(await _context.characters.ToListAsync());
+            return Ok(await _context.vision.ToListAsync());
         }
 
-        //Delete characters
+        //Delete Vision
         [HttpDelete]
-        [Route("DeleteCharacters")]
-        public async Task<ActionResult<List<Characters>>> Delete(string name)
+        [Route("DeleteVision")]
+        public async Task<ActionResult<List<Vision>>> Delete(string name)
         {
-            Characters deleteCharacter = _context.characters.Where(x => x.Name == name).FirstOrDefault();
-            _context.characters.Remove(deleteCharacter);
+            Vision deleteCharacter = _context.vision.Where(x => x.VisionType == name).FirstOrDefault();
+            _context.vision.Remove(deleteCharacter);
             _context.SaveChanges();
-            return Ok(await _context.characters.ToListAsync());
+            return Ok(await _context.vision.ToListAsync());
         }
     }
 }
-

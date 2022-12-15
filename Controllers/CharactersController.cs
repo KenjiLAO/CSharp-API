@@ -39,12 +39,19 @@ namespace monAPI.Controllers
         //Add Characters
         [HttpPost]
         [Route("AddCharacters")]
-        public async Task<ActionResult<List<Characters>>> Post(string name, string description)
+        public async Task<ActionResult<List<Characters>>> Post(string name, string description, string regionName, string visionType, string weaponName )
         {
+            var Region = _context.region.Where(x => x.RegionName == regionName).FirstOrDefault();
+            var Vision = _context.vision.Where(x => x.VisionType == visionType).FirstOrDefault();
+            var Weapon = _context.weapon.Where(x => x.WeaponName == weaponName).FirstOrDefault();
+
             _context.characters.Add(new Characters()
             {
                 Name = name,
-                Description = description
+                Description = description,
+                region = Region,
+                vision = Vision,
+                weapon = Weapon
             });
             _context.SaveChanges();
             return Ok(await _context.characters.ToListAsync());

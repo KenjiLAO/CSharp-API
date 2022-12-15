@@ -4,8 +4,6 @@ using monAPI.Context;
 
 namespace monAPI.Controllers;
 
-
-
 [Route("api/[controller]")]
 [ApiController]
 public class WeaponController : ControllerBase
@@ -22,19 +20,6 @@ public class WeaponController : ControllerBase
     public async Task<ActionResult<List<Weapon>>> Get()
     {
         return Ok(_context.weapon);
-    }
-
-    //Get weapon by name
-    [HttpGet]
-    [Route("GetweaponByName")]
-    public async Task<ActionResult<List<Weapon>>> GetName(string WeaponName)
-    {
-        Weapon selectedWeapon = _context.weapon.Where(x => x.WeaponName == WeaponName).FirstOrDefault();
-        if (selectedWeapon != null)
-        {
-            return Ok(selectedWeapon);
-        }
-        return Ok(selectedWeapon);
     }
 
     //Add weapon
@@ -57,6 +42,7 @@ public class WeaponController : ControllerBase
     [Route("UpdateWeapon")]
     public async Task<ActionResult<List<Weapon>>> Update(string Name)
     {
+
         _context.SaveChanges();
         return Ok(await _context.weapon.ToListAsync());
     }
